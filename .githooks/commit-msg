@@ -1,0 +1,16 @@
+#!/bin/sh
+COMMIT_MESSAGE_FILE=$1
+COMMIT_MESSAGE=$(head -n1 $COMMIT_MESSAGE_FILE)
+
+REGEX='^\[(Feature|Features|Fix|Fixes|Hotfix|Hotfixes|Improvement|Improvements|Chore|Chores)\].*$'
+
+if ! [[ $COMMIT_MESSAGE =~ $REGEX ]];then
+    echo "Commit Message Format is invalid: \"$COMMIT_MESSAGE\""
+    echo "Valid Formats are:"
+    echo "[Feature] Add support..."
+    echo "[Improvement] Refactor code.."
+    echo "Regex Validation: $REGEX"
+    exit 1
+else
+    exit 0
+fi
