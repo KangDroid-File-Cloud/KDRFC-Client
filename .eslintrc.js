@@ -2,27 +2,55 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
-      jsx: true,
+      jsx: true
     },
     ecmaVersion: 13,
-    sourceType: 'module',
+    sourceType: 'module'
   },
-  plugins: ['react', '@typescript-eslint'],
+  plugins: ['react', '@typescript-eslint', 'import', 'prettier'],
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
     'airbnb',
+    'plugin:import/errors',
+    'plugin:import/warnings',
     'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
+    'plugin:import/typescript',
+    'plugin:prettier/recommended'
   ],
+  settings: {
+    'import/parsers': {
+      [require.resolve('@typescript-eslint/parser')]: ['.ts', '.tsx', '.d.ts']
+    },
+    'import/resolver': {
+      [require.resolve('eslint-import-resolver-node')]: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
+      },
+      [require.resolve('eslint-import-resolver-typescript')]: {
+        alwaysTryTypes: true
+      }
+    }
+  },
   env: {
     browser: true,
-    es2021: true,
+    es2021: true
   },
   rules: {
-    '@typescript-eslint/interface-name-prefix': 'on',
-    '@typescript-eslint/explicit-function-return-type': 'on',
-    '@typescript-eslint/explicit-module-boundary-types': 'on',
-    '@typescript-eslint/no-explicit-any': 'on',
-  },
+    '@typescript-eslint/explicit-module-boundary-types': 0,
+    'react/react-in-jsx-scope': 0,
+    'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
+    'react/react-in-jsx-scope': 0,
+    'linebreak-style': 2,
+    'no-use-before-define': 2,
+    'import/no-unresolved': 0,
+    'import/extensions': 0,
+    'import/no-duplicates': ['error'],
+    'import/no-cycle': 'off',
+    'import/order': [
+      'warn',
+      {
+        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type']
+      }
+    ]
+  }
 };
