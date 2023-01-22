@@ -1,18 +1,15 @@
 import { FolderOpenTwoTone } from '@ant-design/icons';
-import { Button, Typography } from 'antd';
+import { Button } from 'antd';
 import Title from 'antd/es/typography/Title';
 import styled from 'styled-components';
 
-const { Text, Link } = Typography;
 function LoginPage() {
   return (
     <RootLoginContainer>
-      <LogoTextContainer>
-        <FolderOpenTwoTone style={{ fontSize: '120px' }} />
-        <Title level={2} style={{ textAlign: 'center' }}>
-          File Cloud
-        </Title>
-      </LogoTextContainer>
+      <FolderOpenTwoTone style={{ fontSize: '120px' }} />
+      <Title level={2} style={{ textAlign: 'center' }}>
+        File Cloud
+      </Title>
       <LoginButtonContainer>
         <SignInButton>
           <img
@@ -46,13 +43,6 @@ const RootLoginContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 20px;
-`;
-
-// Logo and Text Container
-const LogoTextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 `;
 
 // Login Button Container
