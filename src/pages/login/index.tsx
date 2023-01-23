@@ -1,9 +1,20 @@
 import { FolderOpenTwoTone } from '@ant-design/icons';
+import { CodeResponse, useGoogleLogin } from '@react-oauth/google';
 import { Button } from 'antd';
 import Title from 'antd/es/typography/Title';
 import styled from 'styled-components';
 
 function LoginPage() {
+  const onGoogleLoginSuccess = (oAuthCodeResponse: CodeResponse) => {
+    console.log(oAuthCodeResponse);
+  };
+
+  // Setup Google Login Hook
+  const googleLoginHook = useGoogleLogin({
+    onSuccess: onGoogleLoginSuccess,
+    flow: 'auth-code'
+  });
+
   return (
     <RootLoginContainer>
       <FolderOpenTwoTone style={{ fontSize: '120px' }} />
@@ -11,7 +22,7 @@ function LoginPage() {
         File Cloud
       </Title>
       <LoginButtonContainer>
-        <SignInButton>
+        <SignInButton onClick={() => googleLoginHook()}>
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
             width="32px"

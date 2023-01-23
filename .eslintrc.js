@@ -38,6 +38,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/explicit-module-boundary-types': 0,
     'react/react-in-jsx-scope': 0,
+    'import/prefer-default-export': 0,
     'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
     'linebreak-style': 2,
     'no-use-before-define': 0,
