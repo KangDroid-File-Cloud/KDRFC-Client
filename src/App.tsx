@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
 import { AccountApi, Configuration } from './apis';
 import { GOOGLE_OAUTH_ID } from './configs/GlobalConfig';
+import JoinPage from './pages/join';
 import LoginPage from './pages/login';
 
 // Axios/API Init Area
@@ -24,6 +25,7 @@ function App() {
           </GoogleOAuthProvider>
         }
       />
+      <Route path="/join" element={<JoinPage />} />
     </Routes>
   );
 }

@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { AuthenticationProvider } from '../../apis';
 import { accountApi } from '../../App';
-import { JoinTokenHelper } from '../../helpers/joinTokenHelper';
 import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
 function LoginPage() {
@@ -37,10 +36,9 @@ function LoginPage() {
     if (error.response?.status === 404) {
       // 1. Parse Join Token
       const { joinToken } = error.response.data;
-      const joinTokenParsed = JoinTokenHelper.createJoinTokenFromJwt(joinToken);
 
       // 2. Navigate to join page.(TODO: Properly create join page)
-      navigate('/', { state: joinTokenParsed });
+      navigate('/join', { state: joinToken });
     }
   };
 
