@@ -27,15 +27,17 @@ paths:
               $ref: '#/components/schemas/RegisterAccountCommand'
       responses:
         '200':
-          description: Success
+          description: When succeed to register.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessTokenResponse'
         '409':
           description: When user already registered to our service.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '204':
-          description: When succeed to register.
   /api/account/login:
     post:
       tags:
