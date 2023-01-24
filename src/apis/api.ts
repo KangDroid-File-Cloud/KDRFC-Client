@@ -361,7 +361,7 @@ export const AccountApiFp = function (configuration?: Configuration) {
     async joinAccount(
       registerAccountCommand?: RegisterAccountCommand,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccessTokenResponse>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.joinAccount(
         registerAccountCommand,
         options
@@ -415,7 +415,7 @@ export const AccountApiFactory = function (
     joinAccount(
       registerAccountCommand?: RegisterAccountCommand,
       options?: any
-    ): AxiosPromise<void> {
+    ): AxiosPromise<AccessTokenResponse> {
       return localVarFp
         .joinAccount(registerAccountCommand, options)
         .then((request) => request(axios, basePath));
