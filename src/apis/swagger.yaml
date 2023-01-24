@@ -1,0 +1,395 @@
+openapi: 3.0.1
+info:
+  title: KDRFC Server
+  description: KDRFC Main Server
+  version: v1
+paths:
+  /api/account/join:
+    post:
+      tags:
+        - Account
+      summary: Join(Register) to KDRFC Service.
+      operationId: JoinAccount
+      requestBody:
+        description: Join Account Request(Register Request Body)
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/RegisterAccountCommand'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterAccountCommand'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RegisterAccountCommand'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RegisterAccountCommand'
+      responses:
+        '200':
+          description: Success
+        '409':
+          description: When user already registered to our service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '204':
+          description: When succeed to register.
+  /api/account/login:
+    post:
+      tags:
+        - Account
+      summary: Login to KDRFC Service.
+      operationId: LoginAccount
+      requestBody:
+        description: Login Request Command(Login Request Body)
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/LoginCommand'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCommand'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LoginCommand'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LoginCommand'
+      responses:
+        '200':
+          description: When user successfully logged-in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessTokenResponse'
+        '401':
+          description: When user's credential information is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/account/dropout:
+    delete:
+      tags:
+        - Account
+      summary: Dropout(Remove) account
+      operationId: DropoutAccount
+      responses:
+        '200':
+          description: Success
+        '204':
+          description: When successfully dropped out user's account.
+        '401':
+          description: When authorization failed.
+  /api/storage/list:
+    get:
+      tags:
+        - Storage
+      summary: Returns list of folder/file entries with given folder id.
+      operationId: ListFolderAsync
+      parameters:
+        - name: folderId
+          in: query
+          description: (Required) Folder ID to lookup.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: When successfully got folder's contents.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlobProjection'
+        '401':
+          description: When user's credential information is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/storage/folders:
+    post:
+      tags:
+        - Storage
+      summary: Create Folder under parent folder.
+      operationId: CreateFolderAsync
+      requestBody:
+        description: Create Blob Folder Request. See schemas below.
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/CreateBlobFolderRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBlobFolderRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CreateBlobFolderRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CreateBlobFolderRequest'
+      responses:
+        '200':
+          description: When successfully create blob folder on parent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlobProjection'
+        '401':
+          description: When user's credential information is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: When parent folder is not owned by user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: When parent folder is NOT Found.
+  '/api/storage/{blobId}':
+    get:
+      tags:
+        - Storage
+      summary: Get Blob Projection(Detail) information.
+      operationId: GetBlobDetailsAsync
+      parameters:
+        - name: blobId
+          in: path
+          description: Target blob ID to get information.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: When successfully got blob information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlobProjection'
+        '401':
+          description: When user's credential information is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: When target blob is not user's one.
+        '404':
+          description: When parent folder is NOT Found.
+    delete:
+      tags:
+        - Storage
+      summary: Remove Blob(and it's subfolder if file type is folder.)
+      description: This API does return 202 in case of long-processing recursive deletion.
+      operationId: DeleteBlobAsync
+      parameters:
+        - name: blobId
+          in: path
+          description: Target blob ID to remove.
+          required: true
+          schema:
+            type: string
+      responses:
+        '400':
+          description: When target blob id is ROOT Id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: When user's credential information is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: When target blob is not user's one.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: When parent folder is NOT Found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '202':
+          description: 'Request has been accepted, processing for file deletion.'
+  /api/storage/upload:
+    post:
+      tags:
+        - Storage
+      summary: Upload blob file to storage.
+      operationId: UploadBlobFileAsync
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - FileContents
+                - ParentFolderId
+              type: object
+              properties:
+                ParentFolderId:
+                  type: string
+                  description: Parent Folder Id - Where file stored.
+                FileContents:
+                  type: string
+                  description: 'File Contents, Via FormFile.'
+                  format: binary
+            encoding:
+              ParentFolderId:
+                style: form
+              FileContents:
+                style: form
+      responses:
+        '200':
+          description: When successfully uploaded blob information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlobProjection'
+        '400':
+          description: When parentFolder is not actually folder.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: When user's credential information is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: When target blob is not user's one.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: When parent folder is NOT Found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    AccessTokenResponse:
+      required:
+        - accessToken
+        - refreshToken
+      type: object
+      properties:
+        accessToken:
+          minLength: 1
+          type: string
+        refreshToken:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    AuthenticationProvider:
+      enum:
+        - Self
+        - Google
+      type: string
+    BlobFileType:
+      enum:
+        - 0
+        - 1
+      type: integer
+      format: int32
+    BlobProjection:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Blob ID
+          nullable: true
+        length:
+          type: integer
+          description: File Length
+          format: int64
+        uploadDate:
+          type: string
+          description: Date Blob Uploaded
+          format: date-time
+        parentFolderId:
+          type: string
+          description: Parent Folder Id.
+          nullable: true
+        blobFileType:
+          $ref: '#/components/schemas/BlobFileType'
+      additionalProperties: false
+    CreateBlobFolderRequest:
+      type: object
+      properties:
+        parentFolderId:
+          type: string
+          description: Parent Folder Id(Where this blob is located?)
+          nullable: true
+        folderName:
+          type: string
+          description: Folder Name
+          nullable: true
+          example: TestFolderName
+      additionalProperties: false
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          nullable: true
+        traceIdentifier:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LoginCommand:
+      required:
+        - authCode
+        - authenticationProvider
+      type: object
+      properties:
+        authenticationProvider:
+          $ref: '#/components/schemas/AuthenticationProvider'
+        email:
+          type: string
+          description: Email Address(Only applies when self authentication provider)
+          nullable: true
+        authCode:
+          minLength: 1
+          type: string
+          description: 'Authentication ID(OAuth ID when OAuth, Password when Self)'
+      additionalProperties: false
+    RegisterAccountCommand:
+      required:
+        - authCode
+        - authenticationProvider
+        - email
+        - nickname
+      type: object
+      properties:
+        nickname:
+          minLength: 1
+          type: string
+          description: Nickname of User.
+          example: KangDroid
+        email:
+          minLength: 1
+          type: string
+          description: Email of User
+          example: kangdroid@testhelloworld.com
+        authenticationProvider:
+          $ref: '#/components/schemas/AuthenticationProvider'
+        authCode:
+          minLength: 1
+          type: string
+          description: Authentication Code.(Password when self.)
+      additionalProperties: false
