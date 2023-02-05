@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
 import { AccountApi, Configuration } from './apis';
 import { GOOGLE_OAUTH_ID } from './configs/GlobalConfig';
+import GoogleOAuthCallback from './pages/auth/redirect/google';
 import JoinPage from './pages/join';
 import LoginPage from './pages/login';
 
@@ -26,6 +27,7 @@ function App() {
         }
       />
       <Route path="/join" element={<JoinPage />} />
+      <Route path="/auth/redirect/google" element={<GoogleOAuthCallback />} />
     </Routes>
   );
 }
