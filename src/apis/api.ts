@@ -12,10 +12,12 @@
  * Do not edit the class manually.
  */
 
-import globalAxios, { AxiosInstance, AxiosPromise, AxiosRequestConfig } from 'axios';
-import { Configuration } from './configuration';
+import type { AxiosInstance, AxiosPromise, AxiosRequestConfig } from 'axios';
+import globalAxios from 'axios';
+import type { Configuration } from './configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
+import type { RequestArgs } from './base';
 import {
   assertParamExists,
   createRequestFunction,
@@ -25,7 +27,7 @@ import {
   toPathString
 } from './common';
 // @ts-ignore
-import { BaseAPI, BASE_PATH, RequestArgs } from './base';
+import { BaseAPI, BASE_PATH } from './base';
 
 /**
  *
@@ -54,7 +56,8 @@ export interface AccessTokenResponse {
 
 export const AuthenticationProvider = {
   Self: 'Self',
-  Google: 'Google'
+  Google: 'Google',
+  Kakao: 'Kakao'
 } as const;
 
 export type AuthenticationProvider =
@@ -110,6 +113,7 @@ export interface BlobProjection {
    */
   blobFileType?: BlobFileType;
 }
+
 /**
  *
  * @export
@@ -151,28 +155,29 @@ export interface ErrorResponse {
 /**
  *
  * @export
- * @interface LoginCommand
+ * @interface LoginRequest
  */
-export interface LoginCommand {
+export interface LoginRequest {
   /**
    *
    * @type {AuthenticationProvider}
-   * @memberof LoginCommand
+   * @memberof LoginRequest
    */
   authenticationProvider: AuthenticationProvider;
   /**
    * Email Address(Only applies when self authentication provider)
    * @type {string}
-   * @memberof LoginCommand
+   * @memberof LoginRequest
    */
   email?: string | null;
   /**
    * Authentication ID(OAuth ID when OAuth, Password when Self)
    * @type {string}
-   * @memberof LoginCommand
+   * @memberof LoginRequest
    */
   authCode: string;
 }
+
 /**
  *
  * @export
@@ -289,12 +294,12 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
     /**
      *
      * @summary Login to KDRFC Service.
-     * @param {LoginCommand} [loginCommand] Login Request Command(Login Request Body)
+     * @param {LoginRequest} [loginRequest]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     loginAccount: async (
-      loginCommand?: LoginCommand,
+      loginRequest?: LoginRequest,
       options: AxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/account/login`;
@@ -319,7 +324,7 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
         ...options.headers
       };
       localVarRequestOptions.data = serializeDataIfNeeded(
-        loginCommand,
+        loginRequest,
         localVarRequestOptions,
         configuration
       );
@@ -371,15 +376,15 @@ export const AccountApiFp = function (configuration?: Configuration) {
     /**
      *
      * @summary Login to KDRFC Service.
-     * @param {LoginCommand} [loginCommand] Login Request Command(Login Request Body)
+     * @param {LoginRequest} [loginRequest]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async loginAccount(
-      loginCommand?: LoginCommand,
+      loginRequest?: LoginRequest,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AccessTokenResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.loginAccount(loginCommand, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.loginAccount(loginRequest, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     }
   };
@@ -423,13 +428,13 @@ export const AccountApiFactory = function (
     /**
      *
      * @summary Login to KDRFC Service.
-     * @param {LoginCommand} [loginCommand] Login Request Command(Login Request Body)
+     * @param {LoginRequest} [loginRequest]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    loginAccount(loginCommand?: LoginCommand, options?: any): AxiosPromise<AccessTokenResponse> {
+    loginAccount(loginRequest?: LoginRequest, options?: any): AxiosPromise<AccessTokenResponse> {
       return localVarFp
-        .loginAccount(loginCommand, options)
+        .loginAccount(loginRequest, options)
         .then((request) => request(axios, basePath));
     }
   };
@@ -475,14 +480,14 @@ export class AccountApi extends BaseAPI {
   /**
    *
    * @summary Login to KDRFC Service.
-   * @param {LoginCommand} [loginCommand] Login Request Command(Login Request Body)
+   * @param {LoginRequest} [loginRequest]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AccountApi
    */
-  public loginAccount(loginCommand?: LoginCommand, options?: AxiosRequestConfig) {
+  public loginAccount(loginRequest?: LoginRequest, options?: AxiosRequestConfig) {
     return AccountApiFp(this.configuration)
-      .loginAccount(loginCommand, options)
+      .loginAccount(loginRequest, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }
