@@ -12,9 +12,10 @@
  * Do not edit the class manually.
  */
 
-import { AxiosInstance, AxiosResponse } from 'axios';
-import { RequestArgs, RequiredError } from './base';
-import { Configuration } from './configuration';
+import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { RequestArgs } from './base';
+import { RequiredError } from './base';
+import type { Configuration } from './configuration';
 
 /**
  *
@@ -106,6 +107,7 @@ function setFlattenedQueryParams(
   parameter: any,
   key: string = ''
 ): void {
+  if (parameter == null) return;
   if (typeof parameter === 'object') {
     if (Array.isArray(parameter)) {
       (parameter as any[]).forEach((item) => setFlattenedQueryParams(urlSearchParams, item, key));

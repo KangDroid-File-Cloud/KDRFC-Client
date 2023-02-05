@@ -45,20 +45,19 @@ paths:
       summary: Login to KDRFC Service.
       operationId: LoginAccount
       requestBody:
-        description: Login Request Command(Login Request Body)
         content:
           application/json-patch+json:
             schema:
-              $ref: '#/components/schemas/LoginCommand'
+              $ref: '#/components/schemas/LoginRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginCommand'
+              $ref: '#/components/schemas/LoginRequest'
           text/json:
             schema:
-              $ref: '#/components/schemas/LoginCommand'
+              $ref: '#/components/schemas/LoginRequest'
           application/*+json:
             schema:
-              $ref: '#/components/schemas/LoginCommand'
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
           description: When user successfully logged-in.
@@ -301,6 +300,7 @@ components:
       enum:
         - Self
         - Google
+        - Kakao
       type: string
     BlobFileType:
       enum:
@@ -353,7 +353,7 @@ components:
           type: string
           nullable: true
       additionalProperties: false
-    LoginCommand:
+    LoginRequest:
       required:
         - authCode
         - authenticationProvider

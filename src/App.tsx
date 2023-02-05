@@ -1,11 +1,10 @@
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
 import { AccountApi, Configuration } from './apis';
-import { GOOGLE_OAUTH_ID } from './configs/GlobalConfig';
 import GoogleOAuthCallback from './pages/auth/redirect/google';
+import KakaoOAuthCallback from './pages/auth/redirect/kakao';
 import JoinPage from './pages/join';
-import LoginPage from './pages/login';
+import LoginWrapperPage from './pages/login/wrappter';
 
 // Axios/API Init Area
 const axiosInstance = axios.create();
@@ -18,16 +17,10 @@ export const accountApi = new AccountApi(apiConfiguration, undefined, axiosInsta
 function App() {
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={
-          <GoogleOAuthProvider clientId={GOOGLE_OAUTH_ID}>
-            <LoginPage />
-          </GoogleOAuthProvider>
-        }
-      />
+      <Route path="/login" element={<LoginWrapperPage />} />
       <Route path="/join" element={<JoinPage />} />
       <Route path="/auth/redirect/google" element={<GoogleOAuthCallback />} />
+      <Route path="/auth/redirect/kakao" element={<KakaoOAuthCallback />} />
     </Routes>
   );
 }

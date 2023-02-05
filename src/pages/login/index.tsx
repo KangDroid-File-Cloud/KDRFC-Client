@@ -12,6 +12,13 @@ function LoginPage() {
     ux_mode: 'redirect'
   });
 
+  // Setup Kakao Login
+  const kakaoLoginHook = () => {
+    window.Kakao.Auth.authorize({
+      redirectUri: `${window.location.origin}/auth/redirect/kakao`
+    });
+  };
+
   return (
     <RootLoginContainer>
       <FolderOpenTwoTone style={{ fontSize: '120px' }} />
@@ -28,7 +35,7 @@ function LoginPage() {
           />
           Sign-In with Google Login
         </SignInButton>
-        <SignInButton>
+        <SignInButton onClick={() => kakaoLoginHook()}>
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/e/e3/KakaoTalk_logo.svg"
             width="32px"
