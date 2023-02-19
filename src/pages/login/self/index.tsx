@@ -8,7 +8,7 @@ import { accountApi } from '../../../App';
 import { LocalStorageHelper } from '../../../helpers/localStorageHelper';
 
 function SelfLoginPage() {
-  var navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleLoginForm = (loginRequest: LoginRequest) => {
     accountApi

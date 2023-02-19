@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 function LoginPage() {
-  var navigate = useNavigate();
+  const navigate = useNavigate();
   // Setup Google Login Hook
   const googleLoginHook = useGoogleLogin({
     flow: 'auth-code',
