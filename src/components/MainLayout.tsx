@@ -1,12 +1,16 @@
 import { DownOutlined, FolderOpenTwoTone, LaptopOutlined } from '@ant-design/icons';
 import { Dropdown, Layout, Menu, MenuProps, Typography } from 'antd';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { AccessTokenPayload, parseJwtPayload } from '../helpers/jwtHelper';
 import { LocalStorageHelper } from '../helpers/localStorageHelper';
 
-function MainLayout() {
+interface ReactChild {
+  children: ReactNode;
+}
+
+function MainLayout({ children }: ReactChild) {
   const navigate = useNavigate();
   const menuItems: MenuProps['items'] = [
     {
@@ -78,6 +82,7 @@ function MainLayout() {
             items={menuItems}
           />
         </Layout.Sider>
+        <Layout.Content>{children}</Layout.Content>
       </Layout>
     </Layout>
   );
