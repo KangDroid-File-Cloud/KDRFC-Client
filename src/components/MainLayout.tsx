@@ -82,7 +82,14 @@ function MainLayout({ children }: ReactChild) {
             items={menuItems}
           />
         </Layout.Sider>
-        <Layout.Content>{children}</Layout.Content>
+        <Layout.Content
+          style={{
+            height: 'calc(100vh - 64px)',
+            overflowY: 'auto'
+          }}
+        >
+          {children}
+        </Layout.Content>
       </Layout>
     </Layout>
   );
