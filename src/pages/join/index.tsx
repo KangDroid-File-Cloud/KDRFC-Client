@@ -1,5 +1,5 @@
 import { Button, Form, Input, Typography } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { AuthenticationProvider, RegisterAccountCommand } from '../../apis';
 import { accountApi } from '../../App';
@@ -9,6 +9,7 @@ import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 function JoinPage() {
   // Join Token
   const { state } = useLocation();
+  const navigate = useNavigate();
   const isSelfProvider = state === null;
 
   const joinToken = !isSelfProvider ? JoinTokenHelper.createJoinTokenFromJwt(state) : undefined;
@@ -25,6 +26,7 @@ function JoinPage() {
       .then((response) => {
         LocalStorageHelper.setItem('accessToken', response.data.accessToken);
         LocalStorageHelper.setItem('refreshToken', response.data.refreshToken);
+        navigate('/');
       });
   };
 
