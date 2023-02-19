@@ -24,6 +24,7 @@ function KakaoOAuthCallback() {
 
       LocalStorageHelper.setItem('accessToken', response.data.accessToken);
       LocalStorageHelper.setItem('refreshToken', response.data.refreshToken);
+      navigate('/');
     } catch (error) {
       handleLoginError(error);
     }
