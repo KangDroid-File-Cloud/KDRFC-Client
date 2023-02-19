@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
 import { AccountApi, Configuration } from './apis';
+import MainLayout from './components/MainLayout';
 import { FILE_API_BASE_URL } from './configs/GlobalConfig';
 import GoogleOAuthCallback from './pages/auth/redirect/google';
 import KakaoOAuthCallback from './pages/auth/redirect/kakao';
@@ -19,6 +20,7 @@ export const accountApi = new AccountApi(apiConfiguration, undefined, axiosInsta
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<MainLayout />} />
       <Route path="/login" element={<LoginWrapperPage />} />
       <Route path="/login/self" element={<SelfLoginPage />} />
       <Route path="/join" element={<JoinPage />} />
