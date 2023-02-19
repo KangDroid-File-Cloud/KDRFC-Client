@@ -1,10 +1,12 @@
-import { FolderOpenTwoTone } from '@ant-design/icons';
+import { FolderOpenTwoTone, MailTwoTone } from '@ant-design/icons';
 import { useGoogleLogin } from '@react-oauth/google';
 import { Button } from 'antd';
 import Title from 'antd/es/typography/Title';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 function LoginPage() {
+  var navigate = useNavigate();
   // Setup Google Login Hook
   const googleLoginHook = useGoogleLogin({
     flow: 'auth-code',
@@ -43,6 +45,10 @@ function LoginPage() {
             alt="Kakao OAuth Login"
           />
           Sign-In with Kakao Login
+        </SignInButton>
+        <SignInButton onClick={() => navigate('/login/self')}>
+          <MailTwoTone style={{ fontSize: '32px' }} />
+          Sign-In with Email Login
         </SignInButton>
       </LoginButtonContainer>
     </RootLoginContainer>
