@@ -19,7 +19,7 @@ function SelfLoginPage() {
       .then((response) => {
         LocalStorageHelper.setItem('accessToken', response.data.accessToken);
         LocalStorageHelper.setItem('refreshToken', response.data.refreshToken);
-        navigate("/");
+        navigate('/');
       })
       .catch((error) => {
         if (isAxiosError(error) && error.response?.status === 401) {
@@ -35,7 +35,7 @@ function SelfLoginPage() {
             description: 'Unknown error occurred. Please try again later.',
             icon: <WarningTwoTone />,
             placement: 'bottomRight'
-          })
+          });
         }
       });
   };
