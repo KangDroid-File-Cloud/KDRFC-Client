@@ -19,6 +19,7 @@ function SelfLoginPage() {
       .then((response) => {
         LocalStorageHelper.setItem('accessToken', response.data.accessToken);
         LocalStorageHelper.setItem('refreshToken', response.data.refreshToken);
+        navigate("/");
       })
       .catch((error) => {
         if (isAxiosError(error) && error.response?.status === 401) {
