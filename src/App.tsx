@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
-import { AccountApi, Configuration } from './apis';
+import { AccountApi, Configuration, StorageApi } from './apis';
 import AuthProvider from './components/AuthProvider';
 import MainLayout from './components/MainLayout';
 import { FILE_API_BASE_URL } from './configs/GlobalConfig';
 import GoogleOAuthCallback from './pages/auth/redirect/google';
 import KakaoOAuthCallback from './pages/auth/redirect/kakao';
+import Explorer from './pages/explorer';
 import JoinPage from './pages/join';
 import SelfLoginPage from './pages/login/self';
 import LoginWrapperPage from './pages/login/wrappter';
@@ -17,6 +18,7 @@ const apiConfiguration = new Configuration({
 });
 
 export const accountApi = new AccountApi(apiConfiguration, undefined, axiosInstance);
+export const fileApi = new StorageApi(apiConfiguration, undefined, axiosInstance);
 
 function App() {
   return (
@@ -26,6 +28,14 @@ function App() {
         element={
           <AuthProvider>
             <MainLayout>Main</MainLayout>
+          </AuthProvider>
+        }
+      />
+      <Route
+        path="/explorer"
+        element={
+          <AuthProvider>
+            <Explorer />
           </AuthProvider>
         }
       />
