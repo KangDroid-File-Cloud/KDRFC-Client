@@ -39,15 +39,12 @@ function MainLayout({ children }: ReactChild) {
     email: '',
     nickname: '',
     rootid: '',
-    sub: ''
+    sub: '',
+    exp: 0
   });
-  const accessToken = LocalStorageHelper.getItem('accessToken');
+  const accessToken = LocalStorageHelper.getItem('accessToken')!;
   useEffect(() => {
-    if (!accessToken) {
-      navigate('/login');
-    } else {
-      setUser(parseJwtPayload<AccessTokenPayload>(accessToken));
-    }
+    setUser(parseJwtPayload<AccessTokenPayload>(accessToken));
   }, []);
 
   return (

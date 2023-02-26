@@ -3,6 +3,7 @@ export interface AccessTokenPayload {
   nickname: string;
   email: string;
   rootid: string;
+  exp: number;
 }
 
 export function parseJwtPayload<T>(jwt: string) {
