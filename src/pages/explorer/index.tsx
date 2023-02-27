@@ -1,4 +1,5 @@
-import { Table, Typography } from 'antd';
+import { FileImageOutlined, UploadOutlined, WarningTwoTone } from '@ant-design/icons';
+import { Button, notification, Table, Typography, Upload } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,11 +34,12 @@ function Explorer() {
   const navigate = useNavigate();
   const [blobList, setBlobList] = useState<BlobProjection[]>();
   const accessToken = LocalStorageHelper.getItem('accessToken');
+  const jwtData = parseJwtPayload<AccessTokenPayload>(accessToken!);
+
   useEffect(() => {
     if (!accessToken) {
       navigate('/login');
     } else {
-      const jwtData = parseJwtPayload<AccessTokenPayload>(accessToken);
       fileApi
         .listFolderAsync(jwtData.rootid, {
           headers: {
@@ -62,6 +64,45 @@ function Explorer() {
         }}
       >
         <Typography.Title level={2}>All Files</Typography.Title>
+        <div>
+          <Upload
+            listType="text"
+            name="file"
+            showUploadList={false}
+            customRequest={(option) => {
+              fileApi
+                .uploadBlobFileAsync(jwtData.rootid, option.file as File, {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`
+                  }
+                })
+                .then((res) => option.onSuccess!(res))
+                .catch((e) => option.onError!(e));
+            }}
+            onChange={(info) => {
+              if (info.file.status === 'done') {
+                notification.open({
+                  message: 'Success!',
+                  description: 'Successfully uploaded image.',
+                  icon: <FileImageOutlined />,
+                  placement: 'bottomRight'
+                });
+                setBlobList(blobList?.concat(info.file.response.data));
+              } else if (info.file.status === 'error') {
+                notification.open({
+                  message: 'Error!',
+                  description: 'Error while uploading image. Please try again.',
+                  icon: <WarningTwoTone />,
+                  placement: 'bottomRight'
+                });
+              }
+            }}
+          >
+            <Button type="primary" icon={<UploadOutlined />}>
+              Upload File
+            </Button>
+          </Upload>
+        </div>
         <Table style={{ width: '100%' }} dataSource={blobList} columns={columnData} />
       </div>
     </MainLayout>
