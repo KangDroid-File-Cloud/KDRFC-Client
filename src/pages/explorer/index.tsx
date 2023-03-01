@@ -32,6 +32,36 @@ function Explorer() {
       title: 'Upload Date',
       key: 'uploadDate',
       dataIndex: 'uploadDate'
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (record: BlobProjection) => {
+        return (
+          <Button
+            danger
+            onClick={() => {
+              fileApi
+                .deleteBlobAsync(record.id!, {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`
+                  }
+                })
+                .then(() => {
+                  notification.open({
+                    message: 'Success!',
+                    description: `Successfully deleted image ${record.name}.`,
+                    icon: <FileImageOutlined />,
+                    placement: 'bottomRight'
+                  });
+                  setBlobList(blobList?.filter((a) => a.id !== record.id));
+                });
+            }}
+          >
+            Delete
+          </Button>
+        );
+      }
     }
   ];
 
