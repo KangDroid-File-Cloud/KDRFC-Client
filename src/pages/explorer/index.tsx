@@ -9,32 +9,31 @@ import MainLayout from '../../components/MainLayout';
 import { AccessTokenPayload, parseJwtPayload } from '../../helpers/jwtHelper';
 import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
-const columnData: ColumnsType<BlobProjection> = [
-  {
-    title: 'File Name',
-    key: 'name',
-    dataIndex: 'name'
-  },
-  {
-    title: 'File Type',
-    key: 'blobFileType',
-    dataIndex: 'blobFileType',
-    render: (record: BlobFileType) => {
-      return record === BlobFileType.NUMBER_0 ? 'File' : 'Folder';
-    }
-  },
-  {
-    title: 'Upload Date',
-    key: 'uploadDate',
-    dataIndex: 'uploadDate'
-  }
-];
-
 function Explorer() {
   const navigate = useNavigate();
   const [blobList, setBlobList] = useState<BlobProjection[]>();
   const accessToken = LocalStorageHelper.getItem('accessToken');
   const jwtData = parseJwtPayload<AccessTokenPayload>(accessToken!);
+  const columnData: ColumnsType<BlobProjection> = [
+    {
+      title: 'File Name',
+      key: 'name',
+      dataIndex: 'name'
+    },
+    {
+      title: 'File Type',
+      key: 'blobFileType',
+      dataIndex: 'blobFileType',
+      render: (record: BlobFileType) => {
+        return record === BlobFileType.NUMBER_0 ? 'File' : 'Folder';
+      }
+    },
+    {
+      title: 'Upload Date',
+      key: 'uploadDate',
+      dataIndex: 'uploadDate'
+    }
+  ];
 
   useEffect(() => {
     if (!accessToken) {
