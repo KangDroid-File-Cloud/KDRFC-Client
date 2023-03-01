@@ -20,7 +20,7 @@ const columnData: ColumnsType<BlobProjection> = [
     key: 'blobFileType',
     dataIndex: 'blobFileType',
     render: (record: BlobFileType) => {
-      return record === BlobFileType.NUMBER_0 ? 'Folder' : 'File';
+      return record === BlobFileType.NUMBER_0 ? 'File' : 'Folder';
     }
   },
   {
