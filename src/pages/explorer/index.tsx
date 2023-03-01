@@ -116,7 +116,7 @@ function Explorer() {
                   icon: <FileImageOutlined />,
                   placement: 'bottomRight'
                 });
-                setBlobList(blobList?.concat(info.file.response.data));
+                setBlobList([...blobList!, info.file.response.data]);
               } else if (info.file.status === 'error') {
                 notification.open({
                   message: 'Error!',
