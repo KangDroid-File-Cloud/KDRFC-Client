@@ -132,7 +132,7 @@ function Explorer() {
             </Button>
           </Upload>
         </div>
-        <Table style={{ width: '100%' }} dataSource={blobList} columns={columnData} />
+        <Table style={{ width: '100%' }} dataSource={blobList} columns={columnData} rowKey="id" />
       </div>
     </MainLayout>
   );
