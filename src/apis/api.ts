@@ -12,22 +12,26 @@
  * Do not edit the class manually.
  */
 
-import type { AxiosInstance, AxiosPromise, AxiosRequestConfig } from 'axios';
-import globalAxios from 'axios';
 import type { Configuration } from './configuration';
+import type { AxiosPromise, AxiosInstance, AxiosRequestConfig } from 'axios';
+import globalAxios from 'axios';
 // Some imports not used depending on template conditions
 // @ts-ignore
-import type { RequestArgs } from './base';
 import {
-  assertParamExists,
-  createRequestFunction,
   DUMMY_BASE_URL,
-  serializeDataIfNeeded,
+  assertParamExists,
+  setApiKeyToObject,
+  setBasicAuthToObject,
+  setBearerAuthToObject,
+  setOAuthToObject,
   setSearchParams,
-  toPathString
+  serializeDataIfNeeded,
+  toPathString,
+  createRequestFunction
 } from './common';
+import type { RequestArgs } from './base';
 // @ts-ignore
-import { BaseAPI, BASE_PATH } from './base';
+import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError } from './base';
 
 /**
  *
@@ -88,6 +92,12 @@ export interface BlobProjection {
    * @memberof BlobProjection
    */
   id?: string | null;
+  /**
+   * Blob Name
+   * @type {string}
+   * @memberof BlobProjection
+   */
+  name?: string | null;
   /**
    * File Length
    * @type {number}
@@ -247,6 +257,10 @@ export const AccountApiAxiosParamCreator = function (configuration?: Configurati
       const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -534,6 +548,10 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -582,6 +600,10 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = {
@@ -623,6 +645,10 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = {
@@ -658,6 +684,10 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
 
       if (folderId !== undefined) {
         localVarQueryParameter['folderId'] = folderId;
@@ -705,6 +735,10 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
       const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
 
       if (parentFolderId !== undefined) {
         localVarFormParams.append('ParentFolderId', parentFolderId as any);

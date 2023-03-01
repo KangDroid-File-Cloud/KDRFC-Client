@@ -90,6 +90,8 @@ paths:
           description: When successfully dropped out user's account.
         '401':
           description: When authorization failed.
+      security:
+        - KDRFCAuthorization: []
   /api/storage/list:
     get:
       tags:
@@ -117,6 +119,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - KDRFCAuthorization: []
   /api/storage/folders:
     post:
       tags:
@@ -159,6 +163,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: When parent folder is NOT Found.
+      security:
+        - KDRFCAuthorization: []
   '/api/storage/{blobId}':
     get:
       tags:
@@ -189,6 +195,8 @@ paths:
           description: When target blob is not user's one.
         '404':
           description: When parent folder is NOT Found.
+      security:
+        - KDRFCAuthorization: []
     delete:
       tags:
         - Storage
@@ -229,6 +237,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '202':
           description: 'Request has been accepted, processing for file deletion.'
+      security:
+        - KDRFCAuthorization: []
   /api/storage/upload:
     post:
       tags:
@@ -287,6 +297,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - KDRFCAuthorization: []
 components:
   schemas:
     AccessTokenResponse:
@@ -320,6 +332,10 @@ components:
         id:
           type: string
           description: Blob ID
+          nullable: true
+        name:
+          type: string
+          description: Blob Name
           nullable: true
         length:
           type: integer
@@ -408,3 +424,7 @@ components:
           type: string
           description: Authentication Code.(Password when self.)
       additionalProperties: false
+  securitySchemes:
+    KDRFCAuthorization:
+      type: http
+      scheme: Bearer
