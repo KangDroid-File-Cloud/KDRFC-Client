@@ -11,9 +11,9 @@ import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
 const columnData: ColumnsType<BlobProjection> = [
   {
-    title: 'File ID',
-    key: 'id',
-    dataIndex: 'id'
+    title: 'File Name',
+    key: 'name',
+    dataIndex: 'name'
   },
   {
     title: 'File Type',
