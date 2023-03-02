@@ -71,6 +71,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'OAuth Only, when user is not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinTokenResponse'
   /api/account/dropout:
     delete:
       tags:
@@ -350,6 +356,13 @@ components:
           type: string
           nullable: true
         traceIdentifier:
+          type: string
+          nullable: true
+      additionalProperties: false
+    JoinTokenResponse:
+      type: object
+      properties:
+        joinToken:
           type: string
           nullable: true
       additionalProperties: false

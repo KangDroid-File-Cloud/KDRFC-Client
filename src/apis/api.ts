@@ -155,6 +155,19 @@ export interface ErrorResponse {
 /**
  *
  * @export
+ * @interface JoinTokenResponse
+ */
+export interface JoinTokenResponse {
+  /**
+   *
+   * @type {string}
+   * @memberof JoinTokenResponse
+   */
+  joinToken?: string | null;
+}
+/**
+ *
+ * @export
  * @interface LoginRequest
  */
 export interface LoginRequest {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthenticationProvider } from '../../../../apis';
+import { AuthenticationProvider, JoinTokenResponse } from '../../../../apis';
 import { accountApi } from '../../../../App';
 import { LocalStorageHelper } from '../../../../helpers/localStorageHelper';
 
@@ -38,7 +38,7 @@ function GoogleOAuthCallback() {
     // Case 2. OAuth user does not exists.
     if (error.response?.status === 404) {
       // 1. Parse Join Token
-      const { joinToken } = error.response.data;
+      const { joinToken } = error.response.data as JoinTokenResponse;
 
       // 2. Navigate to join page.(TODO: Properly create join page)
       navigate('/join', { state: joinToken });

@@ -25,7 +25,7 @@ function App() {
         path="/"
         element={
           <AuthProvider>
-            <MainLayout />
+            <MainLayout>Main</MainLayout>
           </AuthProvider>
         }
       />

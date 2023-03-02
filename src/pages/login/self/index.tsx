@@ -1,6 +1,6 @@
 import { WarningTwoTone } from '@ant-design/icons';
 import { Button, Form, Input, notification, Typography } from 'antd';
-import { isAxiosError } from 'axios';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { AuthenticationProvider, LoginRequest } from '../../../apis';
@@ -22,7 +22,7 @@ function SelfLoginPage() {
         navigate('/');
       })
       .catch((error) => {
-        if (isAxiosError(error) && error.response?.status === 401) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
           notification.open({
             message: 'Error!',
             description: 'Please check login credential and try again.',
