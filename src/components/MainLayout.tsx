@@ -16,7 +16,10 @@ function MainLayout({ children }: ReactChild) {
     {
       key: 1,
       icon: <LaptopOutlined />,
-      label: 'File Explorer'
+      label: 'File Explorer',
+      onClick: () => {
+        navigate('/explorer');
+      }
     }
   ];
 
