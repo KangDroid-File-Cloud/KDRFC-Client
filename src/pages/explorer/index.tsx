@@ -1,9 +1,9 @@
 import { FileImageOutlined, UploadOutlined, WarningTwoTone } from '@ant-design/icons';
-import { Button, notification, Table, Typography, Upload } from 'antd';
+import { Button, Form, Input, Modal, notification, Table, Typography, Upload } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BlobFileType, BlobProjection } from '../../apis';
+import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
 import { fileApi } from '../../App';
 import MainLayout from '../../components/MainLayout';
 import { AccessTokenPayload, parseJwtPayload } from '../../helpers/jwtHelper';
@@ -12,6 +12,7 @@ import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 function Explorer() {
   const navigate = useNavigate();
   const [blobList, setBlobList] = useState<BlobProjection[]>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const accessToken = LocalStorageHelper.getItem('accessToken');
   const jwtData = parseJwtPayload<AccessTokenPayload>(accessToken!);
   const columnData: ColumnsType<BlobProjection> = [
@@ -81,6 +82,38 @@ function Explorer() {
     }
   }, []);
 
+  const [form] = Form.useForm();
+
+  const handleCreateFolderForm = (formValue: CreateBlobFolderRequest) => {
+    const request: CreateBlobFolderRequest = {
+      ...formValue,
+      parentFolderId: jwtData.rootid
+    };
+
+    fileApi
+      .createFolderAsync(request, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      .then((response) => {
+        notification.open({
+          message: 'Success!',
+          description: 'Succesfully created directory.',
+          icon: <FileImageOutlined />,
+          placement: 'bottomRight'
+        });
+        setBlobList([...blobList!, response.data]);
+        setIsModalOpen(false);
+        form.resetFields();
+      });
+  };
+
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
+    form.resetFields();
+  };
+
   return (
     <MainLayout>
       <div
@@ -131,6 +164,32 @@ function Explorer() {
               Upload File
             </Button>
           </Upload>
+          <Button
+            type="primary"
+            icon={<UploadOutlined />}
+            onClick={() => setIsModalOpen(true)}
+            style={{
+              marginLeft: '10px'
+            }}
+          >
+            Create Folder
+          </Button>
+          <Modal
+            title="Basic Modal"
+            open={isModalOpen}
+            onOk={form.submit}
+            onCancel={handleModalCancel}
+          >
+            <Form<CreateBlobFolderRequest>
+              form={form}
+              layout="vertical"
+              onFinish={handleCreateFolderForm}
+            >
+              <Form.Item label="Folder name" name="folderName" rules={[{ required: true }]}>
+                <Input />
+              </Form.Item>
+            </Form>
+          </Modal>
         </div>
         <Table style={{ width: '100%' }} dataSource={blobList} columns={columnData} rowKey="id" />
       </div>
