@@ -19,7 +19,7 @@ import {
 import { ColumnsType } from 'antd/es/table';
 import { UploadChangeParam } from 'antd/es/upload';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAsyncFn } from 'react-use';
 import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
 import { fileApi } from '../../App';
@@ -29,8 +29,11 @@ import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
 function Explorer() {
   // State Area
+  const [searchParams] = useSearchParams();
   const [blobList, setBlobList] = useAsyncFn(async () => {
-    const response = await fileApi.listFolderAsync(jwtData.rootid, {
+    let targetFolderId = searchParams.get('folderId') ?? jwtData.rootid;
+    if (targetFolderId === '') targetFolderId = jwtData.rootid;
+    const response = await fileApi.listFolderAsync(targetFolderId, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
