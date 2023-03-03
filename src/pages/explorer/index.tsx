@@ -1,4 +1,9 @@
-import { FileImageOutlined, UploadOutlined, WarningTwoTone } from '@ant-design/icons';
+import {
+  FileImageOutlined,
+  FolderOutlined,
+  UploadOutlined,
+  WarningTwoTone
+} from '@ant-design/icons';
 import {
   Button,
   Form,
@@ -92,7 +97,7 @@ function Explorer() {
       });
       notification.open({
         message: 'Success!',
-        description: `Successfully deleted image ${record.name}.`,
+        description: `Successfully deleted blob ${record.name}.`,
         icon: <FileImageOutlined />,
         placement: 'bottomRight'
       });
@@ -116,8 +121,8 @@ function Explorer() {
 
     notification.open({
       message: 'Success!',
-      description: 'Succesfully created directory.',
-      icon: <FileImageOutlined />,
+      description: `Succesfully created directory: ${request.folderName}`,
+      icon: <FolderOutlined />,
       placement: 'bottomRight'
     });
     setBlobList();
@@ -150,7 +155,7 @@ function Explorer() {
     if (info.file.status === 'done') {
       notification.open({
         message: 'Success!',
-        description: 'Successfully uploaded image.',
+        description: 'Successfully uploaded blob.',
         icon: <FileImageOutlined />,
         placement: 'bottomRight'
       });
@@ -158,7 +163,7 @@ function Explorer() {
     } else if (info.file.status === 'error') {
       notification.open({
         message: 'Error!',
-        description: 'Error while uploading image. Please try again.',
+        description: 'Error while uploading blob. Please try again.',
         icon: <WarningTwoTone />,
         placement: 'bottomRight'
       });
