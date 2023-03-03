@@ -29,7 +29,7 @@ import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
 function Explorer() {
   // State Area
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [blobList, setBlobList] = useAsyncFn(async () => {
     let targetFolderId = searchParams.get('folderId') ?? jwtData.rootid;
     if (targetFolderId === '') targetFolderId = jwtData.rootid;
@@ -54,7 +54,18 @@ function Explorer() {
     {
       title: 'File Name',
       key: 'name',
-      dataIndex: 'name'
+      dataIndex: 'name',
+      onCell: (data: BlobProjection) => {
+        if (data.blobFileType === BlobFileType.NUMBER_1) {
+          return {
+            onClick: () => {
+              onFolderBlobCellSelected(data.id!);
+            }
+          };
+        }
+
+        return {};
+      }
     },
     {
       title: 'File Type',
@@ -91,6 +102,12 @@ function Explorer() {
     }
   }, []);
 
+  // ACTION: On Folder Selected(Move to other page)
+  const onFolderBlobCellSelected = (id: string) => {
+    searchParams.set('folderId', id);
+    setBlobList();
+  };
+
   // ACTION: On Blob Deletion
   const [, onBlobDeleteButtonClicked] = useAsyncFn(
     async (record: BlobProjection) => {
@@ -114,7 +131,7 @@ function Explorer() {
   const [, onCreateFolderFormSubmit] = useAsyncFn(async (formValue: CreateBlobFolderRequest) => {
     const request: CreateBlobFolderRequest = {
       ...formValue,
-      parentFolderId: jwtData.rootid
+      parentFolderId: searchParams.get('folderId') ?? jwtData.rootid
     };
 
     await fileApi.createFolderAsync(request, {
@@ -143,7 +160,8 @@ function Explorer() {
   // ACTION: Upload
   const [, onUploadFileStart] = useAsyncFn(async (option: any) => {
     try {
-      const response = await fileApi.uploadBlobFileAsync(jwtData.rootid, option.file as File, {
+      const targetFolderId = searchParams.get('folderId') ?? jwtData.rootid;
+      const response = await fileApi.uploadBlobFileAsync(targetFolderId, option.file as File, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
