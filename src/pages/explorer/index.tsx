@@ -14,6 +14,7 @@ import { ColumnsType } from 'antd/es/table';
 import { UploadChangeParam } from 'antd/es/upload';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAsyncFn } from 'react-use';
 import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
 import { fileApi } from '../../App';
 import MainLayout from '../../components/MainLayout';
@@ -22,7 +23,16 @@ import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
 function Explorer() {
   // State Area
-  const [blobList, setBlobList] = useState<BlobProjection[]>();
+  const [blobList, setBlobList] = useAsyncFn(async () => {
+    const response = await fileApi.listFolderAsync(jwtData.rootid, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    return response.data;
+  }, []);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -69,15 +79,7 @@ function Explorer() {
     if (!accessToken) {
       navigate('/login');
     } else {
-      fileApi
-        .listFolderAsync(jwtData.rootid, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        })
-        .then((response) => {
-          setBlobList(response.data);
-        });
+      setBlobList();
     }
   }, []);
 
@@ -96,7 +98,7 @@ function Explorer() {
           icon: <FileImageOutlined />,
           placement: 'bottomRight'
         });
-        setBlobList(blobList?.filter((a) => a.id !== record.id));
+        setBlobList();
       });
   };
 
@@ -120,7 +122,7 @@ function Explorer() {
           icon: <FileImageOutlined />,
           placement: 'bottomRight'
         });
-        setBlobList([...blobList!, response.data]);
+        setBlobList();
         setIsModalOpen(false);
         form.resetFields();
       });
@@ -153,7 +155,7 @@ function Explorer() {
         icon: <FileImageOutlined />,
         placement: 'bottomRight'
       });
-      setBlobList([...blobList!, info.file.response.data]);
+      setBlobList();
     } else if (info.file.status === 'error') {
       notification.open({
         message: 'Error!',
@@ -215,7 +217,14 @@ function Explorer() {
             </Form>
           </Modal>
         </div>
-        <Table style={{ width: '100%' }} dataSource={blobList} columns={columnData} rowKey="id" />
+        {!blobList.loading && blobList.value && (
+          <Table
+            style={{ width: '100%' }}
+            dataSource={blobList.value}
+            columns={columnData}
+            rowKey="id"
+          />
+        )}
       </div>
     </MainLayout>
   );
