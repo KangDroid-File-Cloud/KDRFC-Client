@@ -1,5 +1,6 @@
 import {
   FileImageOutlined,
+  FolderAddOutlined,
   FolderOutlined,
   UploadOutlined,
   WarningTwoTone
@@ -196,7 +197,7 @@ function Explorer() {
           </Upload>
           <Button
             type="primary"
-            icon={<UploadOutlined />}
+            icon={<FolderAddOutlined />}
             onClick={() => setIsModalOpen(true)}
             style={{
               marginLeft: '10px'
