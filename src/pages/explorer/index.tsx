@@ -32,7 +32,6 @@ function Explorer() {
 
     return response.data;
   }, []);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -84,49 +83,47 @@ function Explorer() {
   }, []);
 
   // ACTION: On Blob Deletion
-  const onBlobDeleteButtonClicked = (record: BlobProjection) => {
-    fileApi
-      .deleteBlobAsync(record.id!, {
+  const [, onBlobDeleteButtonClicked] = useAsyncFn(
+    async (record: BlobProjection) => {
+      await fileApi.deleteBlobAsync(record.id!, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
-      })
-      .then(() => {
-        notification.open({
-          message: 'Success!',
-          description: `Successfully deleted image ${record.name}.`,
-          icon: <FileImageOutlined />,
-          placement: 'bottomRight'
-        });
-        setBlobList();
       });
-  };
+      notification.open({
+        message: 'Success!',
+        description: `Successfully deleted image ${record.name}.`,
+        icon: <FileImageOutlined />,
+        placement: 'bottomRight'
+      });
+      setBlobList();
+    },
+    [accessToken]
+  );
 
   // ACTION: On Folder Creation
-  const onCreateFolderFormSubmit = (formValue: CreateBlobFolderRequest) => {
+  const [, onCreateFolderFormSubmit] = useAsyncFn(async (formValue: CreateBlobFolderRequest) => {
     const request: CreateBlobFolderRequest = {
       ...formValue,
       parentFolderId: jwtData.rootid
     };
 
-    fileApi
-      .createFolderAsync(request, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      .then((response) => {
-        notification.open({
-          message: 'Success!',
-          description: 'Succesfully created directory.',
-          icon: <FileImageOutlined />,
-          placement: 'bottomRight'
-        });
-        setBlobList();
-        setIsModalOpen(false);
-        form.resetFields();
-      });
-  };
+    await fileApi.createFolderAsync(request, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    notification.open({
+      message: 'Success!',
+      description: 'Succesfully created directory.',
+      icon: <FileImageOutlined />,
+      placement: 'bottomRight'
+    });
+    setBlobList();
+    setIsModalOpen(false);
+    form.resetFields();
+  });
 
   // ACTION: On Modal Cancellation
   const onModalCanceled = () => {
@@ -135,16 +132,18 @@ function Explorer() {
   };
 
   // ACTION: Upload
-  const onUploadFileStart = (option: any) => {
-    fileApi
-      .uploadBlobFileAsync(jwtData.rootid, option.file as File, {
+  const [, onUploadFileStart] = useAsyncFn(async (option: any) => {
+    try {
+      const response = await fileApi.uploadBlobFileAsync(jwtData.rootid, option.file as File, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
-      })
-      .then((res) => option.onSuccess!(res))
-      .catch((e) => option.onError!(e));
-  };
+      });
+      option.onSuccess!(response);
+    } catch (e) {
+      option.onError!(e);
+    }
+  });
 
   // ACTION: OnUploading
   const onUploading = (info: UploadChangeParam<UploadFile<any>>) => {
