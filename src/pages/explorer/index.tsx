@@ -1,6 +1,17 @@
 import { FileImageOutlined, UploadOutlined, WarningTwoTone } from '@ant-design/icons';
-import { Button, Form, Input, Modal, notification, Table, Typography, Upload } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  notification,
+  Table,
+  Typography,
+  Upload,
+  UploadFile
+} from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import { UploadChangeParam } from 'antd/es/upload';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
@@ -10,11 +21,17 @@ import { AccessTokenPayload, parseJwtPayload } from '../../helpers/jwtHelper';
 import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
 function Explorer() {
-  const navigate = useNavigate();
+  // State Area
   const [blobList, setBlobList] = useState<BlobProjection[]>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
+
+  // Access Token, Auth Area
   const accessToken = LocalStorageHelper.getItem('accessToken');
   const jwtData = parseJwtPayload<AccessTokenPayload>(accessToken!);
+
+  // Table Column Definition
   const columnData: ColumnsType<BlobProjection> = [
     {
       title: 'File Name',
@@ -39,26 +56,7 @@ function Explorer() {
       key: 'action',
       render: (record: BlobProjection) => {
         return (
-          <Button
-            danger
-            onClick={() => {
-              fileApi
-                .deleteBlobAsync(record.id!, {
-                  headers: {
-                    Authorization: `Bearer ${accessToken}`
-                  }
-                })
-                .then(() => {
-                  notification.open({
-                    message: 'Success!',
-                    description: `Successfully deleted image ${record.name}.`,
-                    icon: <FileImageOutlined />,
-                    placement: 'bottomRight'
-                  });
-                  setBlobList(blobList?.filter((a) => a.id !== record.id));
-                });
-            }}
-          >
+          <Button danger onClick={() => onBlobDeleteButtonClicked(record)}>
             Delete
           </Button>
         );
@@ -66,6 +64,7 @@ function Explorer() {
     }
   ];
 
+  // Init: List folder when first accessed
   useEffect(() => {
     if (!accessToken) {
       navigate('/login');
@@ -82,9 +81,27 @@ function Explorer() {
     }
   }, []);
 
-  const [form] = Form.useForm();
+  // ACTION: On Blob Deletion
+  const onBlobDeleteButtonClicked = (record: BlobProjection) => {
+    fileApi
+      .deleteBlobAsync(record.id!, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      .then(() => {
+        notification.open({
+          message: 'Success!',
+          description: `Successfully deleted image ${record.name}.`,
+          icon: <FileImageOutlined />,
+          placement: 'bottomRight'
+        });
+        setBlobList(blobList?.filter((a) => a.id !== record.id));
+      });
+  };
 
-  const handleCreateFolderForm = (formValue: CreateBlobFolderRequest) => {
+  // ACTION: On Folder Creation
+  const onCreateFolderFormSubmit = (formValue: CreateBlobFolderRequest) => {
     const request: CreateBlobFolderRequest = {
       ...formValue,
       parentFolderId: jwtData.rootid
@@ -109,9 +126,42 @@ function Explorer() {
       });
   };
 
-  const handleModalCancel = () => {
+  // ACTION: On Modal Cancellation
+  const onModalCanceled = () => {
     setIsModalOpen(false);
     form.resetFields();
+  };
+
+  // ACTION: Upload
+  const onUploadFileStart = (option: any) => {
+    fileApi
+      .uploadBlobFileAsync(jwtData.rootid, option.file as File, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      .then((res) => option.onSuccess!(res))
+      .catch((e) => option.onError!(e));
+  };
+
+  // ACTION: OnUploading
+  const onUploading = (info: UploadChangeParam<UploadFile<any>>) => {
+    if (info.file.status === 'done') {
+      notification.open({
+        message: 'Success!',
+        description: 'Successfully uploaded image.',
+        icon: <FileImageOutlined />,
+        placement: 'bottomRight'
+      });
+      setBlobList([...blobList!, info.file.response.data]);
+    } else if (info.file.status === 'error') {
+      notification.open({
+        message: 'Error!',
+        description: 'Error while uploading image. Please try again.',
+        icon: <WarningTwoTone />,
+        placement: 'bottomRight'
+      });
+    }
   };
 
   return (
@@ -131,34 +181,8 @@ function Explorer() {
             listType="text"
             name="file"
             showUploadList={false}
-            customRequest={(option) => {
-              fileApi
-                .uploadBlobFileAsync(jwtData.rootid, option.file as File, {
-                  headers: {
-                    Authorization: `Bearer ${accessToken}`
-                  }
-                })
-                .then((res) => option.onSuccess!(res))
-                .catch((e) => option.onError!(e));
-            }}
-            onChange={(info) => {
-              if (info.file.status === 'done') {
-                notification.open({
-                  message: 'Success!',
-                  description: 'Successfully uploaded image.',
-                  icon: <FileImageOutlined />,
-                  placement: 'bottomRight'
-                });
-                setBlobList([...blobList!, info.file.response.data]);
-              } else if (info.file.status === 'error') {
-                notification.open({
-                  message: 'Error!',
-                  description: 'Error while uploading image. Please try again.',
-                  icon: <WarningTwoTone />,
-                  placement: 'bottomRight'
-                });
-              }
-            }}
+            customRequest={onUploadFileStart}
+            onChange={onUploading}
           >
             <Button type="primary" icon={<UploadOutlined />}>
               Upload File
@@ -178,12 +202,12 @@ function Explorer() {
             title="Basic Modal"
             open={isModalOpen}
             onOk={form.submit}
-            onCancel={handleModalCancel}
+            onCancel={onModalCanceled}
           >
             <Form<CreateBlobFolderRequest>
               form={form}
               layout="vertical"
-              onFinish={handleCreateFolderForm}
+              onFinish={onCreateFolderFormSubmit}
             >
               <Form.Item label="Folder name" name="folderName" rules={[{ required: true }]}>
                 <Input />
