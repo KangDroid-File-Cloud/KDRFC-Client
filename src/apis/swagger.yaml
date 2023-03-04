@@ -239,6 +239,28 @@ paths:
           description: 'Request has been accepted, processing for file deletion.'
       security:
         - KDRFCAuthorization: []
+  '/api/storage/{blobId}/resolve':
+    get:
+      tags:
+        - Storage
+      operationId: ResolveBlobPathAsync
+      parameters:
+        - name: blobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BlobProjection'
+      security:
+        - KDRFCAuthorization: []
   /api/storage/upload:
     post:
       tags:
