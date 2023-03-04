@@ -21,11 +21,17 @@ import { UploadChangeParam } from 'antd/es/upload';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAsyncFn } from 'react-use';
+import styled from 'styled-components';
 import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
 import { fileApi } from '../../App';
 import MainLayout from '../../components/MainLayout';
 import { AccessTokenPayload, parseJwtPayload } from '../../helpers/jwtHelper';
 import { LocalStorageHelper } from '../../helpers/localStorageHelper';
+
+const CustomTypography = styled(Typography.Title)`
+  display: inline;
+  margin-left: 5px;
+`;
 
 function Explorer() {
   // State Area
@@ -41,6 +47,16 @@ function Explorer() {
 
     return response.data;
   }, []);
+  const [blobPathRef, setBlobPathRef] = useAsyncFn(async () => {
+    let targetFolderId = searchParams.get('folderId') ?? jwtData.rootid;
+    if (targetFolderId === '') targetFolderId = jwtData.rootid;
+    const response = await fileApi.resolveBlobPathAsync(targetFolderId, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    return response.data;
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -98,6 +114,7 @@ function Explorer() {
     if (!accessToken) {
       navigate('/login');
     } else {
+      setBlobPathRef();
       setBlobList();
     }
   }, []);
@@ -243,6 +260,28 @@ function Explorer() {
               </Form.Item>
             </Form>
           </Modal>
+          <div style={{ marginTop: '10px' }}>
+            {!blobPathRef.loading &&
+              blobPathRef.value &&
+              blobPathRef.value.map((blob) => {
+                return (
+                  <>
+                    <CustomTypography level={5}>/</CustomTypography>
+                    <CustomTypography
+                      key={blob.id}
+                      level={5}
+                      onClick={() => {
+                        searchParams.set('folderId', blob.id!);
+                        setSearchParams(searchParams, { replace: true });
+                        navigate(0);
+                      }}
+                    >
+                      {blob.name === jwtData.sub ? 'root' : blob.name}
+                    </CustomTypography>
+                  </>
+                );
+              })}
+          </div>
         </div>
         {!blobList.loading && blobList.value && (
           <Table
