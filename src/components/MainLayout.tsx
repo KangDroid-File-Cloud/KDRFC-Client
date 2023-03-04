@@ -18,7 +18,10 @@ function MainLayout({ children }: ReactChild) {
       icon: <LaptopOutlined />,
       label: 'File Explorer',
       onClick: () => {
-        navigate('/explorer');
+        navigate({
+          pathname: '/explorer',
+          search: `?folderId=${user.rootid}`
+        });
       }
     }
   ];

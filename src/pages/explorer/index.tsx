@@ -19,7 +19,7 @@ import {
 import { ColumnsType } from 'antd/es/table';
 import { UploadChangeParam } from 'antd/es/upload';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAsyncFn } from 'react-use';
 import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
 import { fileApi } from '../../App';
@@ -29,8 +29,11 @@ import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
 function Explorer() {
   // State Area
+  const [searchParams, setSearchParams] = useSearchParams();
   const [blobList, setBlobList] = useAsyncFn(async () => {
-    const response = await fileApi.listFolderAsync(jwtData.rootid, {
+    let targetFolderId = searchParams.get('folderId') ?? jwtData.rootid;
+    if (targetFolderId === '') targetFolderId = jwtData.rootid;
+    const response = await fileApi.listFolderAsync(targetFolderId, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -51,7 +54,18 @@ function Explorer() {
     {
       title: 'File Name',
       key: 'name',
-      dataIndex: 'name'
+      dataIndex: 'name',
+      onCell: (data: BlobProjection) => {
+        if (data.blobFileType === BlobFileType.NUMBER_1) {
+          return {
+            onClick: () => {
+              onFolderBlobCellSelected(data.id!);
+            }
+          };
+        }
+
+        return {};
+      }
     },
     {
       title: 'File Type',
@@ -88,6 +102,13 @@ function Explorer() {
     }
   }, []);
 
+  // ACTION: On Folder Selected(Move to other page)
+  const onFolderBlobCellSelected = (id: string) => {
+    searchParams.set('folderId', id);
+    setSearchParams(searchParams, { replace: true });
+    navigate(0);
+  };
+
   // ACTION: On Blob Deletion
   const [, onBlobDeleteButtonClicked] = useAsyncFn(
     async (record: BlobProjection) => {
@@ -111,7 +132,7 @@ function Explorer() {
   const [, onCreateFolderFormSubmit] = useAsyncFn(async (formValue: CreateBlobFolderRequest) => {
     const request: CreateBlobFolderRequest = {
       ...formValue,
-      parentFolderId: jwtData.rootid
+      parentFolderId: searchParams.get('folderId') ?? jwtData.rootid
     };
 
     await fileApi.createFolderAsync(request, {
@@ -140,7 +161,8 @@ function Explorer() {
   // ACTION: Upload
   const [, onUploadFileStart] = useAsyncFn(async (option: any) => {
     try {
-      const response = await fileApi.uploadBlobFileAsync(jwtData.rootid, option.file as File, {
+      const targetFolderId = searchParams.get('folderId') ?? jwtData.rootid;
+      const response = await fileApi.uploadBlobFileAsync(targetFolderId, option.file as File, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
