@@ -708,6 +708,50 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
     },
     /**
      *
+     * @param {string} blobId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    resolveBlobPathAsync: async (
+      blobId: string,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'blobId' is not null or undefined
+      assertParamExists('resolveBlobPathAsync', 'blobId', blobId);
+      const localVarPath = `/api/storage/{blobId}/resolve`.replace(
+        `{${'blobId'}}`,
+        encodeURIComponent(String(blobId))
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions
+      };
+    },
+    /**
+     *
      * @summary Upload blob file to storage.
      * @param {string} parentFolderId Parent Folder Id - Where file stored.
      * @param {File} fileContents File Contents, Via FormFile.
@@ -838,6 +882,22 @@ export const StorageApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @param {string} blobId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async resolveBlobPathAsync(
+      blobId: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BlobProjection>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.resolveBlobPathAsync(
+        blobId,
+        options
+      );
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @summary Upload blob file to storage.
      * @param {string} parentFolderId Parent Folder Id - Where file stored.
      * @param {File} fileContents File Contents, Via FormFile.
@@ -923,6 +983,17 @@ export const StorageApiFactory = function (
     },
     /**
      *
+     * @param {string} blobId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    resolveBlobPathAsync(blobId: string, options?: any): AxiosPromise<Array<BlobProjection>> {
+      return localVarFp
+        .resolveBlobPathAsync(blobId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Upload blob file to storage.
      * @param {string} parentFolderId Parent Folder Id - Where file stored.
      * @param {File} fileContents File Contents, Via FormFile.
@@ -1004,6 +1075,19 @@ export class StorageApi extends BaseAPI {
   public listFolderAsync(folderId?: string, options?: AxiosRequestConfig) {
     return StorageApiFp(this.configuration)
       .listFolderAsync(folderId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} blobId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof StorageApi
+   */
+  public resolveBlobPathAsync(blobId: string, options?: AxiosRequestConfig) {
+    return StorageApiFp(this.configuration)
+      .resolveBlobPathAsync(blobId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
