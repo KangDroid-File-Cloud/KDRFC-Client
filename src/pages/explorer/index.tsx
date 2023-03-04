@@ -105,7 +105,8 @@ function Explorer() {
   // ACTION: On Folder Selected(Move to other page)
   const onFolderBlobCellSelected = (id: string) => {
     searchParams.set('folderId', id);
-    setBlobList();
+    setSearchParams(searchParams, { replace: true });
+    navigate(0);
   };
 
   // ACTION: On Blob Deletion
