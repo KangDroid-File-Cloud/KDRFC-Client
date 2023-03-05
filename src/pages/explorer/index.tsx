@@ -111,9 +111,11 @@ function Explorer() {
             <Button danger onClick={() => onBlobDeleteButtonClicked(record)}>
               Delete
             </Button>
-            <Button type="primary" onClick={() => onDownloadBlobButtonClicked(record)}>
-              Download
-            </Button>
+            {record.blobFileType === BlobFileType.NUMBER_0 && (
+              <Button type="primary" onClick={() => onDownloadBlobButtonClicked(record)}>
+                Download
+              </Button>
+            )}
           </div>
         );
       }
