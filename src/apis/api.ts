@@ -70,6 +70,19 @@ export type AuthenticationProvider =
 /**
  *
  * @export
+ * @interface BlobEligibleResponse
+ */
+export interface BlobEligibleResponse {
+  /**
+   * Blob Temp Token(One-Time-Use), EXP in 1 min.
+   * @type {string}
+   * @memberof BlobEligibleResponse
+   */
+  token?: string | null;
+}
+/**
+ *
+ * @export
  * @enum {string}
  */
 
@@ -619,6 +632,98 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
     },
     /**
      *
+     * @summary Download Blob File
+     * @param {string} blobId A blob ID to download file
+     * @param {string} [blobAccessToken] A Blob Access Token
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    downloadBlobAsync: async (
+      blobId: string,
+      blobAccessToken?: string,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'blobId' is not null or undefined
+      assertParamExists('downloadBlobAsync', 'blobId', blobId);
+      const localVarPath = `/api/storage/{blobId}/download`.replace(
+        `{${'blobId'}}`,
+        encodeURIComponent(String(blobId))
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (blobAccessToken !== undefined) {
+        localVarQueryParameter['blobAccessToken'] = blobAccessToken;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions
+      };
+    },
+    /**
+     *
+     * @summary Check file download is eligible, create temp token.
+     * @param {string} blobId A blob ID to download file
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    downloadBlobCheck: async (
+      blobId: string,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'blobId' is not null or undefined
+      assertParamExists('downloadBlobCheck', 'blobId', blobId);
+      const localVarPath = `/api/storage/{blobId}/download/eligible`.replace(
+        `{${'blobId'}}`,
+        encodeURIComponent(String(blobId))
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication KDRFCAuthorization required
+      // http bearer authentication required
+      await setBearerAuthToObject(localVarHeaderParameter, configuration);
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions
+      };
+    },
+    /**
+     *
      * @summary Get Blob Projection(Detail) information.
      * @param {string} blobId Target blob ID to get information.
      * @param {*} [options] Override http request option.
@@ -708,7 +813,8 @@ export const StorageApiAxiosParamCreator = function (configuration?: Configurati
     },
     /**
      *
-     * @param {string} blobId
+     * @summary Get Blob\'s Folder Information
+     * @param {string} blobId A blob ID to resolve path on.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -851,6 +957,40 @@ export const StorageApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @summary Download Blob File
+     * @param {string} blobId A blob ID to download file
+     * @param {string} [blobAccessToken] A Blob Access Token
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async downloadBlobAsync(
+      blobId: string,
+      blobAccessToken?: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<File>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.downloadBlobAsync(
+        blobId,
+        blobAccessToken,
+        options
+      );
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @summary Check file download is eligible, create temp token.
+     * @param {string} blobId A blob ID to download file
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async downloadBlobCheck(
+      blobId: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BlobEligibleResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.downloadBlobCheck(blobId, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @summary Get Blob Projection(Detail) information.
      * @param {string} blobId Target blob ID to get information.
      * @param {*} [options] Override http request option.
@@ -882,7 +1022,8 @@ export const StorageApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @param {string} blobId
+     * @summary Get Blob\'s Folder Information
+     * @param {string} blobId A blob ID to resolve path on.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -959,6 +1100,31 @@ export const StorageApiFactory = function (
     },
     /**
      *
+     * @summary Download Blob File
+     * @param {string} blobId A blob ID to download file
+     * @param {string} [blobAccessToken] A Blob Access Token
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    downloadBlobAsync(blobId: string, blobAccessToken?: string, options?: any): AxiosPromise<File> {
+      return localVarFp
+        .downloadBlobAsync(blobId, blobAccessToken, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @summary Check file download is eligible, create temp token.
+     * @param {string} blobId A blob ID to download file
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    downloadBlobCheck(blobId: string, options?: any): AxiosPromise<BlobEligibleResponse> {
+      return localVarFp
+        .downloadBlobCheck(blobId, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
      * @summary Get Blob Projection(Detail) information.
      * @param {string} blobId Target blob ID to get information.
      * @param {*} [options] Override http request option.
@@ -983,7 +1149,8 @@ export const StorageApiFactory = function (
     },
     /**
      *
-     * @param {string} blobId
+     * @summary Get Blob\'s Folder Information
+     * @param {string} blobId A blob ID to resolve path on.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -1052,6 +1219,35 @@ export class StorageApi extends BaseAPI {
 
   /**
    *
+   * @summary Download Blob File
+   * @param {string} blobId A blob ID to download file
+   * @param {string} [blobAccessToken] A Blob Access Token
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof StorageApi
+   */
+  public downloadBlobAsync(blobId: string, blobAccessToken?: string, options?: AxiosRequestConfig) {
+    return StorageApiFp(this.configuration)
+      .downloadBlobAsync(blobId, blobAccessToken, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @summary Check file download is eligible, create temp token.
+   * @param {string} blobId A blob ID to download file
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof StorageApi
+   */
+  public downloadBlobCheck(blobId: string, options?: AxiosRequestConfig) {
+    return StorageApiFp(this.configuration)
+      .downloadBlobCheck(blobId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @summary Get Blob Projection(Detail) information.
    * @param {string} blobId Target blob ID to get information.
    * @param {*} [options] Override http request option.
@@ -1080,7 +1276,8 @@ export class StorageApi extends BaseAPI {
 
   /**
    *
-   * @param {string} blobId
+   * @summary Get Blob\'s Folder Information
+   * @param {string} blobId A blob ID to resolve path on.
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof StorageApi
