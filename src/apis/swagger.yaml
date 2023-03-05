@@ -243,22 +243,108 @@ paths:
     get:
       tags:
         - Storage
+      summary: Get Blob's Folder Information
       operationId: ResolveBlobPathAsync
       parameters:
         - name: blobId
           in: path
+          description: A blob ID to resolve path on.
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Success
+          description: When successfully resolved path.
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/BlobProjection'
+        '404':
+          description: When target blob is not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: When blob is not user's one.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - KDRFCAuthorization: []
+  '/api/storage/{blobId}/download':
+    get:
+      tags:
+        - Storage
+      summary: Download Blob File
+      operationId: DownloadBlobAsync
+      parameters:
+        - name: blobId
+          in: path
+          description: A blob ID to download file
+          required: true
+          schema:
+            type: string
+        - name: blobAccessToken
+          in: query
+          description: A Blob Access Token
+          schema:
+            type: string
+      responses:
+        '200':
+          description: When Successfully downloaded file.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: When one of blob access token is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/api/storage/{blobId}/download/eligible':
+    get:
+      tags:
+        - Storage
+      summary: 'Check file download is eligible, create temp token.'
+      operationId: DownloadBlobCheck
+      parameters:
+        - name: blobId
+          in: path
+          description: A blob ID to download file
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: When Successfully validated eligibility.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlobEligibleResponse'
+        '400':
+          description: When user tries to download folder.(Not Supported)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: When target blob is not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: When blob is not user's one.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
       security:
         - KDRFCAuthorization: []
   /api/storage/upload:
@@ -342,6 +428,14 @@ components:
         - Google
         - Kakao
       type: string
+    BlobEligibleResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'Blob Temp Token(One-Time-Use), EXP in 1 min.'
+          nullable: true
+      additionalProperties: false
     BlobFileType:
       enum:
         - 0
