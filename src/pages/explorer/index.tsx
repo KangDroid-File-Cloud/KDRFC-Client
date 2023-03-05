@@ -25,6 +25,7 @@ import styled from 'styled-components';
 import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
 import { fileApi } from '../../App';
 import MainLayout from '../../components/MainLayout';
+import { FILE_API_BASE_URL } from '../../configs/GlobalConfig';
 import { AccessTokenPayload, parseJwtPayload } from '../../helpers/jwtHelper';
 import { LocalStorageHelper } from '../../helpers/localStorageHelper';
 
@@ -101,9 +102,19 @@ function Explorer() {
       key: 'action',
       render: (record: BlobProjection) => {
         return (
-          <Button danger onClick={() => onBlobDeleteButtonClicked(record)}>
-            Delete
-          </Button>
+          <div
+            style={{
+              display: 'flex',
+              gap: '10px'
+            }}
+          >
+            <Button danger onClick={() => onBlobDeleteButtonClicked(record)}>
+              Delete
+            </Button>
+            <Button type="primary" onClick={() => onDownloadBlobButtonClicked(record)}>
+              Download
+            </Button>
+          </div>
         );
       }
     }
@@ -209,6 +220,22 @@ function Explorer() {
       });
     }
   };
+
+  // ACTION: OnDownloadBlob
+  const [, onDownloadBlobButtonClicked] = useAsyncFn(async (file: BlobProjection) => {
+    const fileEligibleResponse = await fileApi.downloadBlobCheck(file.id!, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    const blobUrl = `${FILE_API_BASE_URL}/api/storage/${file.id!}/download?blobAccessToken=${
+      fileEligibleResponse.data.token
+    }`;
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.click();
+    link.parentNode?.removeChild(link);
+  });
 
   return (
     <MainLayout>
