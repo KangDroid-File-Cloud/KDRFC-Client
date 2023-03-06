@@ -1,29 +1,13 @@
-import {
-  FileImageOutlined,
-  FolderAddOutlined,
-  FolderOutlined,
-  UploadOutlined,
-  WarningTwoTone
-} from '@ant-design/icons';
-import {
-  Button,
-  Form,
-  Input,
-  Modal,
-  notification,
-  Table,
-  Typography,
-  Upload,
-  UploadFile
-} from 'antd';
+import { FileImageOutlined } from '@ant-design/icons';
+import { Button, notification, Table, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { UploadChangeParam } from 'antd/es/upload';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAsyncFn } from 'react-use';
-import { BlobFileType, BlobProjection, CreateBlobFolderRequest } from '../../apis';
+import { BlobFileType, BlobProjection } from '../../apis';
 import { fileApi } from '../../App';
 import { BlobPathView } from '../../components/BlobPathView';
+import { GeneralBlobOperation } from '../../components/GeneralBlobOperation';
 import MainLayout from '../../components/MainLayout';
 import { FILE_API_BASE_URL } from '../../configs/GlobalConfig';
 import { AccessTokenPayload, parseJwtPayload } from '../../helpers/jwtHelper';
@@ -53,8 +37,6 @@ function Explorer() {
     });
     return response.data;
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
   const navigate = useNavigate();
 
   // Access Token, Auth Area
@@ -153,71 +135,6 @@ function Explorer() {
     [accessToken]
   );
 
-  // ACTION: On Folder Creation
-  const [, onCreateFolderFormSubmit] = useAsyncFn(async (formValue: CreateBlobFolderRequest) => {
-    const request: CreateBlobFolderRequest = {
-      ...formValue,
-      parentFolderId: searchParams.get('folderId') ?? jwtData.rootid
-    };
-
-    await fileApi.createFolderAsync(request, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-
-    notification.open({
-      message: 'Success!',
-      description: `Succesfully created directory: ${request.folderName}`,
-      icon: <FolderOutlined />,
-      placement: 'bottomRight'
-    });
-    setBlobList();
-    setIsModalOpen(false);
-    form.resetFields();
-  });
-
-  // ACTION: On Modal Cancellation
-  const onModalCanceled = () => {
-    setIsModalOpen(false);
-    form.resetFields();
-  };
-
-  // ACTION: Upload
-  const [, onUploadFileStart] = useAsyncFn(async (option: any) => {
-    try {
-      const targetFolderId = searchParams.get('folderId') ?? jwtData.rootid;
-      const response = await fileApi.uploadBlobFileAsync(targetFolderId, option.file as File, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
-      option.onSuccess!(response);
-    } catch (e) {
-      option.onError!(e);
-    }
-  });
-
-  // ACTION: OnUploading
-  const onUploading = (info: UploadChangeParam<UploadFile<any>>) => {
-    if (info.file.status === 'done') {
-      notification.open({
-        message: 'Success!',
-        description: 'Successfully uploaded blob.',
-        icon: <FileImageOutlined />,
-        placement: 'bottomRight'
-      });
-      setBlobList();
-    } else if (info.file.status === 'error') {
-      notification.open({
-        message: 'Error!',
-        description: 'Error while uploading blob. Please try again.',
-        icon: <WarningTwoTone />,
-        placement: 'bottomRight'
-      });
-    }
-  };
-
   // ACTION: OnDownloadBlob
   const [, onDownloadBlobButtonClicked] = useAsyncFn(async (file: BlobProjection) => {
     const fileEligibleResponse = await fileApi.downloadBlobCheck(file.id!, {
@@ -247,43 +164,11 @@ function Explorer() {
       >
         <Typography.Title level={2}>All Files</Typography.Title>
         <div>
-          <Upload
-            listType="text"
-            name="file"
-            showUploadList={false}
-            customRequest={onUploadFileStart}
-            onChange={onUploading}
-          >
-            <Button type="primary" icon={<UploadOutlined />}>
-              Upload File
-            </Button>
-          </Upload>
-          <Button
-            type="primary"
-            icon={<FolderAddOutlined />}
-            onClick={() => setIsModalOpen(true)}
-            style={{
-              marginLeft: '10px'
-            }}
-          >
-            Create Folder
-          </Button>
-          <Modal
-            title="Basic Modal"
-            open={isModalOpen}
-            onOk={form.submit}
-            onCancel={onModalCanceled}
-          >
-            <Form<CreateBlobFolderRequest>
-              form={form}
-              layout="vertical"
-              onFinish={onCreateFolderFormSubmit}
-            >
-              <Form.Item label="Folder name" name="folderName" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
-            </Form>
-          </Modal>
+          <GeneralBlobOperation
+            searchParams={searchParams}
+            rootId={jwtData.rootid}
+            setBlobList={setBlobList}
+          />
           <BlobPathView
             blobPathRef={blobPathRef}
             onBlobPathClick={(blob) => {
